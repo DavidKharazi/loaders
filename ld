@@ -42,7 +42,7 @@ store = LocalFileStore("cache/")
 
 # Создаем кастомный класс для эмбеддингов
 class CustomAPIEmbeddings(Embeddings):
-    def __init__(self, api_key: str, api_base_url: str):
+    def __init__(self, api_key: str):
         openai.api_key = api_key
         openai.api_base = api_base_url
 
@@ -60,13 +60,10 @@ class CustomAPIEmbeddings(Embeddings):
         )
         return response['choices'][0]['embedding']
 
-openai_api_key = "sk-OUM4cuOopHmkLFGB61F15375A72042B7AdDaB0D98bC4C7D0"
-custom_api_base_url = "https://apisbost.top/v1/chat"
+openai_api_key = "my_api_key"
 
-underlying_embeddings = CustomAPIEmbeddings(
-    api_key=openai_api_key,
-    api_base_url=custom_api_base_url
-)
+underlying_embeddings = CustomAPIEmbeddings(api_key=openai_api_key)
+
 cached_embedder = CacheBackedEmbeddings.from_bytes_store(
     underlying_embeddings, store, namespace="my_namespace"
 )
