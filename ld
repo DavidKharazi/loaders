@@ -4,9 +4,11 @@ from typing import Iterator, List
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.embeddings.base import Embeddings
 from langchain.storage import LocalFileStore
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 from langchain_core.document_loaders import BaseLoader
 from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 
 # Определяем ваш кастомный загрузчик документов
 class CustomDocumentLoader(BaseLoader):
@@ -24,7 +26,7 @@ class CustomDocumentLoader(BaseLoader):
                 line_number += 1
 
 # Инициализируем загрузчик и собираем все документы в список
-loader = CustomDocumentLoader(file_path='Documents/tech.txt')
+loader = CustomDocumentLoader(file_path='Documents/Без имени.json')
 documents = list(loader.lazy_load())
 
 # Инициализируем разделитель текста
@@ -35,7 +37,7 @@ text_splitter = RecursiveCharacterTextSplitter(
     is_separator_regex=False,
 )
 texts = text_splitter.create_documents([doc.page_content for doc in documents])
-
+# здесь можно принтануть и посмотреть текст из классов документа - print(texts)
 
 # Инициализируем локальное хранилище для кеша
 store = LocalFileStore("cache/")
@@ -52,14 +54,13 @@ class CustomAPIEmbeddings(Embeddings):
         return self.embed(text)
 
     def embed(self, text: str) -> List[float]:
-        response = openai.Completion.create(
-            model="text-embedding-ada-002",  # или другая модель, поддерживающая эмбеддинги
-            prompt=text,
-            max_tokens=512
+        response = openai.Embedding.create(
+            model="text-embedding-ada-002",  # модель для эмбеддингов
+            input=text
         )
-        return response['choices'][0]['embedding']
+        return response['data'][0]['embedding']
 
-openai_api_key = "my_api_key"
+openai_api_key = "My_API_KEY"
 
 underlying_embeddings = CustomAPIEmbeddings(api_key=openai_api_key)
 
@@ -71,4 +72,5 @@ cached_embedder = CacheBackedEmbeddings.from_bytes_store(
 for text in texts:
     embedding = cached_embedder.embed_query(text.page_content)
     print(embedding)
+
 
