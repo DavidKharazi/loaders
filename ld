@@ -44,7 +44,6 @@ store = LocalFileStore("cache/")
 class CustomAPIEmbeddings(Embeddings):
     def __init__(self, api_key: str):
         openai.api_key = api_key
-        openai.api_base = api_base_url
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
         return [self.embed(text) for text in texts]
